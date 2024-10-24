@@ -1,10 +1,7 @@
 from flask import Flask, request, jsonify
-import requests
-import psycopg2
-import os
+import psycopg2, os
 from groq import Groq
-import summary_file
-import data_functions
+import summary_file, data_functions
 
 app = Flask(__name__)
 
@@ -37,7 +34,7 @@ def fetch_country_data():
     if not country_name:
         return {"error": "Country name is required"}, 400
 
-    result, status_code = data_functions.fetch_and_store_country_data(country_name)
+    result, status_code = data_functions.store_country_data(country_name)
     return jsonify(result), status_code
 
 @app.route('/fetch-multiple-countries', methods=['GET'])

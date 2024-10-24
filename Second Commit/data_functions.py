@@ -16,7 +16,7 @@ def insert_country_data(conn, data):
         print(f"Error inserting data: {e}")
         conn.rollback()
 
-def fetch_and_store_country_data(country_name):
+def store_country_data(country_name):
     conn = connect_db()
     if not conn:
         print("Failed to connect to database.")
