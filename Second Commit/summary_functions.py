@@ -1,7 +1,7 @@
 import prompts
 from groq import Groq
 import os
-from updated_app import client
+from app import client
 
 def default_summary(country_data):
     country_details = f'''

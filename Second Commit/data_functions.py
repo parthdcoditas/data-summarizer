@@ -1,5 +1,9 @@
-from updated_app import connect_db,api_url,headers, TABLE_NAME
-import requests
+import requests,os
+from database import connect_db_
+api_url = 'https://api.api-ninjas.com/v1/country?name='
+headers = {'X-Api-Key': os.environ.get("X-Api-Key")}
+TABLE_NAME = os.environ.get("TABLE_NAME")
+
 
 def insert_country_data(conn, data):
     try:
@@ -17,7 +21,7 @@ def insert_country_data(conn, data):
         conn.rollback()
 
 def store_country_data(country_name):
-    conn = connect_db()
+    conn = connect_db_()
     if not conn:
         print("Failed to connect to database.")
         return {"error": "Database connection failed."}, 500

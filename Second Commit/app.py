@@ -1,32 +1,16 @@
 from flask import Flask, request, jsonify
-import psycopg2, os
+import os
 from groq import Groq
-import summary_file, data_functions
+import summary_functions, data_functions, database
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+TABLE_NAME = os.environ.get("TABLE_NAME")
 
-DB_HOST = "localhost"
-DB_NAME = "country"
-DB_USER = "postgres"
-DB_PASSWORD = "postgres"
-TABLE_NAME = "extended_country_data"
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY", "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"))
-api_url = 'https://api.api-ninjas.com/v1/country?name='
-headers = {'X-Api-Key': 'D4br28qLwwVqBEsWj83V5A==wFx7pwiY06LK74y0'}
-
-def connect_db():
-    try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
-        return conn
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
 @app.route('/fetch-country-data', methods=['GET'])
 def fetch_country_data():
     country_name = request.args.get('country_name', None)
@@ -61,7 +45,7 @@ def summary():
     if not parameter:
         return {"error": "Paramter is required"}, 400
     
-    conn = connect_db()
+    conn = database.connect_db_()
     if not conn:
         return {"error": "Database connection failed"}, 500
 
@@ -76,13 +60,13 @@ def summary():
         if country_data:
             match parameter:
                 case 'population_density':
-                    groq_summary = summary_file.pop_density_summary(country_data)
+                    groq_summary = summary_functions.pop_density_summary(country_data)
                 case 'trade':
-                    groq_summary = summary_file.trade_summary(country_data)
+                    groq_summary = summary_functions.trade_summary(country_data)
                 case 'import_export':
-                    groq_summary = summary_file.import_export_summary(country_data)
+                    groq_summary = summary_functions.import_export_summary(country_data)
                 case _:
-                    groq_summary = summary_file.default_summary(country_data)
+                    groq_summary = summary_functions.default_summary(country_data)
 
             return groq_summary, 200
         else:
